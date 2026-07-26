@@ -1062,6 +1062,20 @@ button { color: inherit; }
 .kicker { margin: 0 0 10px; color: var(--rust); font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
 .map-story h3 { margin: 0; color: var(--forest-900); font-family: var(--serif); font-size: 38px; line-height: 1.06; font-weight: 500; letter-spacing: -.03em; }
 .map-story-content > p:not(.kicker) { color: var(--muted); font-size: 14px; line-height: 1.72; }
+.route-sequence { margin: 16px 0 0; color: var(--muted); font-size: 10.5px; line-height: 2; }
+.route-sequence b {
+  display: inline-grid;
+  place-items: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 2px;
+  margin-right: 3px;
+  border-radius: 50%;
+  background: var(--forest-700);
+  color: var(--white);
+  font-size: 9px;
+}
+.route-sequence i { margin: 0 5px; color: #b3aa97; font-style: normal; }
 .route-metrics { margin: auto 0 0; padding-top: 24px; display: grid; grid-template-columns: repeat(3,1fr); border-top: 1px solid var(--line); }
 .route-metrics div { min-width: 0; }
 .route-metrics dt { color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; }
@@ -1172,8 +1186,23 @@ button { color: inherit; }
   font-size: 12px;
 }
 .support-pin.fuel { background: #55636f; }
+.support-pin.shopping { background: #6f8752; }
+.route-arrow {
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .35);
+  color: var(--arrow-color, var(--rust));
+  font-size: 11px;
+  line-height: 1;
+  pointer-events: none;
+}
 .legend-food { background: #b5763f; font-size: 10px; }
 .legend-fuel { background: #55636f; font-size: 10px; }
+.shopping-row .meal-label { color: #6f8752; }
 
 /* Dining */
 .dining-section { background: var(--cream-50); }
@@ -1553,6 +1582,7 @@ button { color: inherit; }
               <h3 id="map-story-title">Jackson Hole to Bozeman</h3>
               <p id="map-story-copy">Ten days across one of North America’s most extraordinary landscapes.</p>
               <a class="story-link" id="map-story-link" href="#" target="_blank" rel="noopener" hidden></a>
+              <p class="route-sequence" id="route-sequence" hidden></p>
               <dl class="route-metrics">
                 <div><dt>Distance</dt><dd id="route-distance">~760 mi</dd></div>
                 <div><dt>Drive</dt><dd id="route-duration">Scenic pace</dd></div>
@@ -1740,6 +1770,24 @@ window.TRIP_DATA = (() => {
       photoFallbacks: ['trail ride horses Bridger-Teton National Forest', 'horseback riders Jackson Hole Wyoming'],
       description: 'Swift Creek Outfitters’ base camp beside the Teton Wilderness, where the morning trail ride begins. Marker is approximate—confirm the check-in point with the outfitter.'
     },
+    oxbowBend: {
+      name: 'Oxbow Bend', region: 'Grand Teton National Park', kind: 'sunrise',
+      coords: [43.8652, -110.5486], photoQuery: 'Oxbow Bend Snake River Mount Moran sunrise',
+      photoFallbacks: ['Oxbow Bend Grand Teton reflection', 'Mount Moran Snake River Grand Teton'],
+      description: 'The Snake River curls beneath Mount Moran here — Grand Teton’s most celebrated sunrise reflection, with frequent moose, otters and pelicans.'
+    },
+    bridgeBay: {
+      name: 'Bridge Bay Marina', region: 'Yellowstone Lake', kind: 'activity',
+      coords: [44.5340, -110.4370], photoQuery: 'Bridge Bay Marina Yellowstone Lake',
+      photoFallbacks: ['Yellowstone Lake marina boats', 'Yellowstone Lake shoreline'],
+      description: 'Yellowstone Lake’s marina: guided fishing charters (gear included) and shoreline casting nearby. A park fishing permit is required — state licenses are not valid. Note: fishing from Fishing Bridge itself has been prohibited since 1973.'
+    },
+    mesaFalls: {
+      name: 'Upper Mesa Falls', region: 'Caribou-Targhee NF, Idaho', kind: 'waterfall',
+      coords: [44.0872, -111.3297], photoQuery: 'Upper Mesa Falls Idaho',
+      photoFallbacks: ['Mesa Falls Henrys Fork Idaho'],
+      description: 'A 114-foot curtain of the Henrys Fork thundering over a volcanic ledge — the easy, spectacular outing 35 minutes from the Island Park cabin.'
+    },
     jacksonLakeLodge: {
       name: 'Jackson Lake Lodge', region: 'Grand Teton National Park', kind: 'viewpoint',
       coords: [43.8779, -110.5770], photoQuery: 'Jackson Lake Lodge Willow Flats Grand Teton',
@@ -1794,7 +1842,7 @@ window.TRIP_DATA = (() => {
     },
     oldFaithful: {
       name: 'Old Faithful', region: 'Yellowstone National Park', kind: 'geyser',
-      coords: [44.4605, -110.8281], photoQuery: 'Old Faithful geyser Yellowstone eruption',
+      coords: [44.4591, -110.8290], photoQuery: 'Old Faithful geyser Yellowstone eruption',
       description: 'Yellowstone’s signature geyser anchors the world’s densest collection of geothermal features.'
     },
     islandPark: {
@@ -1813,7 +1861,7 @@ window.TRIP_DATA = (() => {
     },
     grandPrismatic: {
       name: 'Grand Prismatic Spring', region: 'Yellowstone National Park', kind: 'thermal',
-      coords: [44.5251, -110.8382], photoQuery: 'Grand Prismatic Spring Yellowstone overlook',
+      coords: [44.5254, -110.8352], photoQuery: 'Grand Prismatic Spring Yellowstone overlook',
       description: 'The country’s largest hot spring radiates blue, green, yellow and orange from above.'
     },
     fairyFalls: {
@@ -1823,12 +1871,12 @@ window.TRIP_DATA = (() => {
     },
     fireholeFalls: {
       name: 'Firehole Falls', region: 'Yellowstone National Park', kind: 'waterfall',
-      coords: [44.6256, -110.8648], photoQuery: 'Firehole Falls Yellowstone National Park',
+      coords: [44.6245, -110.8629], photoQuery: 'Firehole Falls Yellowstone National Park',
       description: 'A one-way canyon drive follows dark volcanic walls to this powerful roadside waterfall.'
     },
     hayden: {
       name: 'Hayden Valley', region: 'Yellowstone National Park', kind: 'wildlife',
-      coords: [44.6456, -110.4681],
+      coords: [44.6497, -110.4627],
       photoFile: 'File:Bison in Hayden Valley, Yellowstone NP.jpg',
       photoQuery: 'Hayden Valley Yellowstone bison sunrise',
       description: 'A broad dawn wildlife corridor where mist, bison and the Yellowstone River share the frame.'
@@ -2047,6 +2095,22 @@ window.TRIP_DATA = (() => {
       photoQuery: 'Gardiner Montana main street', description: 'Cozy coffee-and-books breakfast before the final drive to Bozeman. Photo shows its downtown Gardiner setting.',
       link: 'https://www.tumbleweedcafemt.com/', linkLabel: 'Website'
     },
+    jacDining: {
+      name: 'Bar Osta & Cafe Bistro (JAC)', region: 'Jackson Hole Airport terminal', kind: 'dining',
+      coords: [43.6079, -110.7370], meals: 'Dinner (arrival night)',
+      veg: 'Veg: pizzas, pastas, salads and pastries · Non-veg: Italian mains and deli plates',
+      photoUrl: 'https://www.jhfinedining.com/img/airport/bar-osta-pizza.jpg',
+      photoCredit: 'Fine Dining Restaurant Group, Jackson Hole Airport',
+      photoQuery: 'pizza restaurant meal',
+      description: 'Eat right after landing — Bar Osta brings Il Villaggio Osteria’s Italian menu into the terminal, with Cafe Bistro and the Bodega grab-and-go beside it. Easier than hunting for a kitchen still open at 8 PM.',
+      link: 'https://www.jhfinedining.com/jackson-hole-airport-restaurants', linkLabel: 'Airport restaurants'
+    },
+    groceryWestYellowstone: {
+      name: 'Food Roundup Supermarket', region: 'West Yellowstone, MT', kind: 'shopping',
+      coords: [44.6641, -111.1023], photoQuery: 'West Yellowstone Montana town street',
+      description: 'Full grocery store on the way to Island Park — stock the cabin and the On-The-Run list here (best selection between Jackson and Bozeman).',
+      link: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Food Roundup Supermarket, West Yellowstone, MT'), linkLabel: 'Open in Maps'
+    },
     /* ---- Fuel stops for the 15-passenger van (large-vehicle friendly) ---- */
     fuelColter: {
       name: 'Colter Bay Village Fuel', region: 'Grand Teton National Park', kind: 'fuel',
@@ -2136,6 +2200,9 @@ window.TRIP_DATA = (() => {
     fountainPaintPot: wiki('About this spot', 'Fountain_Paint_Pot'),
     grandPrismatic: wiki('About this spot', 'Grand_Prismatic_Spring'),
     fairyFalls: mapsPlace('Fairy Falls Trailhead, Yellowstone National Park'),
+    oxbowBend: mapsPlace('Oxbow Bend Turnout, Grand Teton National Park'),
+    bridgeBay: ['Park fishing rules & permits', 'https://www.nps.gov/yell/planyourvisit/fishing.htm'],
+    mesaFalls: wiki('About this spot', 'Mesa_Falls'),
     fireholeFalls: wiki('About this spot', 'Firehole_Falls'),
     hayden: wiki('About this spot', 'Hayden_Valley'),
     mudVolcano: mapsPlace('Mud Volcano, Yellowstone National Park'),
@@ -2162,20 +2229,20 @@ window.TRIP_DATA = (() => {
       title: 'Arrival beneath the Tetons', kicker: 'The first horizon', hero: 'colter', color: '#d97a4a',
       route: ['jac', 'colter'], fallbackMiles: 49, fallbackDrive: '1 hr 10 min',
       foodPlan: [
-        { meal: 'Dinner', id: 'ranchHouse', note: 'Kitchen usually closes by 9 PM — head straight there after check-in.' }
+        { meal: 'Dinner', id: 'jacDining', note: 'Eat at the airport right after landing — no kitchen worries on the drive north.' }
       ],
       fuelStops: [{ id: 'fuelDornans', note: 'Rental vans leave JAC full; top off here only if the gauge says otherwise.' }],
       summary: 'Land inside Grand Teton, collect the car and follow the park road north to a quiet first evening on Jackson Lake.',
       highlight: 'First light on the peaks from the Colter Bay shoreline.',
       schedule: [
-        { time: '5:49 PM', title: 'Touch down at JAC', location: 'jac', detail: 'Pick up the 15-passenger van for the group of 11 after UA 2200 arrives.' },
-        { time: '7:15 PM', title: 'Settle into Colter Bay', location: 'colter', detail: 'Check in at 100 Cabin Rd, eat and take a low-key shoreline walk if daylight remains.' }
+        { time: '5:49 PM', title: 'Land, eat, then pick up the van', location: 'jac', detail: 'Dinner at the airport after UA 2200 arrives, then collect the 15-passenger van for the group of 11.' },
+        { time: '8:00 PM', title: 'Settle into Colter Bay', location: 'colter', detail: 'Check in at 100 Cabin Rd and take a low-key shoreline walk if daylight remains.' }
       ]
     },
     {
       id: 'day-2', number: 2, date: '2026-08-12', label: 'Aug 12', weekday: 'Wednesday',
       title: 'Saddles, sage and sunset', kicker: 'Classic Teton country', hero: 'horseback', color: '#c6623d',
-      route: ['colter', 'jacksonLakeLodge', 'horseback', 'cunningham', 'tetonPoint', 'snakeRiver', 'colter'], fallbackMiles: 86, fallbackDrive: '2 hr 30 min',
+      route: ['colter', 'oxbowBend', 'horseback', 'cunningham', 'tetonPoint', 'snakeRiver', 'colter'], fallbackMiles: 86, fallbackDrive: '2 hr 30 min',
       foodPlan: [
         { meal: 'Breakfast', id: 'pioneerGrill', note: 'Counter opens early — perfect after the Willow Flats sunrise.' },
         { meal: 'Lunch', id: 'ranchHouse', note: 'Or picnic supplies from the Colter Bay General Store next door.' },
@@ -2185,7 +2252,7 @@ window.TRIP_DATA = (() => {
       summary: 'Begin at Willow Flats, ride into the Wyoming landscape, then trace the eastern viewpoints to an iconic sunset.',
       highlight: 'A Western horseback ride and the evening glow at Snake River Overlook.',
       schedule: [
-        { time: '6:00 AM', title: 'Sunrise over Willow Flats', location: 'jacksonLakeLodge', detail: 'Scan open flats for moose, elk and bears from a safe distance.' },
+        { time: '6:00 AM', title: 'Sunrise at Oxbow Bend', location: 'oxbowBend', detail: 'Mount Moran mirrored in the Snake River — arrive 20 minutes before sunrise; watch for moose and otters.' },
         { time: 'Morning', title: 'Teton horseback adventure', location: 'horseback', detail: 'Two-hour ride from the Pacific Creek base camp; confirm the exact check-in point when booking.' },
         { time: 'Late morning', title: 'Historic ranch country', location: 'cunningham', detail: 'Walk to the homestead and photograph the peaks beyond the cabin.' },
         { time: 'Afternoon', title: 'Teton Point panorama', location: 'tetonPoint', detail: 'Pause at the roadside sign and broad sagebrush viewpoints.' },
@@ -2219,15 +2286,19 @@ window.TRIP_DATA = (() => {
       foodPlan: [
         { meal: 'Breakfast', id: 'ranchHouse', note: 'Last Colter Bay breakfast before checkout.' },
         { meal: 'Lunch', id: 'grantVillage', note: 'Or picnic on the Yellowstone Lake shore at West Thumb.' },
-        { meal: 'Dinner', id: 'wildWest', note: 'Group-friendly stop in West Yellowstone on the way to the cabin.' }
+        { meal: 'Dinner', id: 'wildWest', note: 'Dinner in West Yellowstone, then groceries next door before the cabin.' }
       ],
       fuelStops: [
         { id: 'fuelFlagg', note: 'Last pumps before Yellowstone’s South Entrance.' },
-        { id: 'fuelWestYellowstone', note: 'Top off near the cabin for tomorrow’s early start.' }
+        { id: 'fuelWestYellowstone', note: 'Top off near the cabin while shopping.' }
+      ],
+      shoppingStops: [
+        { id: 'groceryWestYellowstone', note: 'Stock the cabin and the On-The-Run list (see Packing tab) — water, fruit, PB&J and Nutella, snacks, yogurt, paper goods, wine.' }
       ],
       summary: 'Boat beneath the Tetons, cross the Continental Divide and meet Yellowstone through lakeside hot springs and Old Faithful.',
       highlight: 'Two national parks and two elemental worlds in a single day.',
       schedule: [
+        { time: '6:10 AM', title: 'Sunrise over Jackson Lake', location: 'colter', detail: 'Walk to the Colter Bay swim beach for first light on the Tetons — steps from the cabin, before checkout chaos.' },
         { time: '8:00 AM', title: 'Jackson Lake boat rental', location: 'colter', detail: 'Reserve the earliest calm-water window and return before checkout.' },
         { time: '12:30 PM', title: 'West Thumb boardwalk', location: 'westThumb', detail: 'See Black Pool, Fishing Cone and thermal water beside Yellowstone Lake.' },
         { time: '3:00 PM', title: 'Old Faithful country', location: 'oldFaithful', detail: 'Check eruption predictions and explore Upper Geyser Basin while waiting.' },
@@ -2236,76 +2307,80 @@ window.TRIP_DATA = (() => {
     },
     {
       id: 'day-5', number: 5, date: '2026-08-15', label: 'Aug 15', weekday: 'Saturday',
-      title: 'Yellowstone in full color', kicker: 'Steam, prism and falls', hero: 'grandPrismatic', color: '#d08834',
-      route: ['islandPark', 'fountainPaintPot', 'oldFaithful', 'grandPrismatic', 'fairyFalls', 'fireholeFalls', 'islandPark'], fallbackMiles: 126, fallbackDrive: '3 hr 25 min',
+      title: 'A day to breathe', kicker: 'Rest and recharge', hero: 'mesaFalls', color: '#6d8a7c',
+      route: ['islandPark', 'mesaFalls', 'islandPark'], fallbackMiles: 34, fallbackDrive: '1 hr 00 min',
       foodPlan: [
-        { meal: 'Breakfast', id: 'ernies', note: 'Boxed breakfasts and trail sandwiches to-go on the drive in.' },
-        { meal: 'Lunch', id: 'oldFaithfulDining', note: 'The Inn dining room; Geyser Grill next door is the fast kid option.' },
+        { meal: 'Breakfast', id: 'islandPark', note: 'Slow cabin breakfast from last night’s grocery run — no alarms today.', packed: true },
+        { meal: 'Lunch', id: 'islandPark', note: 'PB&J / Nutella picnic from the On-The-Run bin, at the cabin or Mesa Falls.', packed: true },
         { meal: 'Dinner', id: 'cafeSabor', note: 'Riverside Mexican at Mack’s Inn — the best vegetarian range near the cabin.' }
       ],
-      fuelStops: [{ id: 'fuelOldFaithful', note: 'In-park fill so tomorrow’s dawn run starts full.' }],
-      summary: 'Move from bubbling paint pots to the rainbow scale of Grand Prismatic, with a forest waterfall beyond.',
-      highlight: 'Grand Prismatic Spring glowing beneath the midday sun.',
+      fuelStops: [{ id: 'fuelWestYellowstone', note: 'Optional evening top-off so tomorrow’s geyser day starts full.' }],
+      summary: 'A deliberate rest day at the cabin: sleep in, play by the Henrys Fork, and take one easy optional outing to Upper Mesa Falls.',
+      highlight: 'Doing absolutely nothing beside the Henrys Fork — with a waterfall option if feet get restless.',
       schedule: [
-        { time: '7:30 AM', title: 'Fountain Paint Pot', location: 'fountainPaintPot', detail: 'Walk among all four of Yellowstone’s hydrothermal feature types.' },
-        { time: 'Late morning', title: 'Upper Geyser Basin', location: 'oldFaithful', detail: 'Use this window if the previous Old Faithful visit felt rushed.' },
-        { time: 'Midday', title: 'Grand Prismatic overlook', location: 'grandPrismatic', detail: 'Warmer air means less steam and stronger color from above.' },
-        { time: 'Afternoon', title: 'Fairy Falls', location: 'fairyFalls', detail: 'Continue the five-mile outing or turn back after the overlook.' },
-        { time: 'Late afternoon', title: 'Firehole Falls', location: 'fireholeFalls', detail: 'Take the canyon drive if open before returning west.' }
+        { time: 'Morning', title: 'Sleep in and slow down', location: 'islandPark', detail: 'Laundry, games, journaling, river-splashing — recovery keeps the back half of the trip fun for the kids.' },
+        { time: 'Optional midday', title: 'Upper Mesa Falls', location: 'mesaFalls', detail: 'An easy 35-minute drive to a 114-foot waterfall with boardwalk viewing decks.' },
+        { time: 'Afternoon', title: 'Prep the cooler', location: 'islandPark', detail: 'Sandwiches, thermoses and snacks staged for the next three big days.' }
       ]
     },
     {
       id: 'day-6', number: 6, date: '2026-08-16', label: 'Aug 16', weekday: 'Sunday',
-      title: 'Bison dawn, canyon thunder', kicker: 'The elemental heart', hero: 'artistPoint', color: '#b65836',
-      route: ['islandPark', 'hayden', 'mudVolcano', 'fishingBridge', 'artistPoint', 'canyon', 'islandPark'], fallbackMiles: 184, fallbackDrive: '4 hr 45 min',
+      title: 'Yellowstone in full color', kicker: 'Steam, prism and falls', hero: 'grandPrismatic', color: '#d08834',
+      route: ['islandPark', 'fireholeFalls', 'fountainPaintPot', 'grandPrismatic', 'fairyFalls', 'oldFaithful', 'islandPark'], fallbackMiles: 111, fallbackDrive: '3 hr 05 min',
       foodPlan: [
-        { meal: 'Breakfast', id: 'hayden', note: 'Packed — nothing is open at 5 AM. Prep the cooler the night before.', packed: true },
-        { meal: 'Lunch', id: 'canyonEatery', note: 'Wok, salad and pizza stations minutes from the rims.' },
-        { meal: 'Dinner', id: 'madisonCrossing', note: 'The sit-down night in the old 1918 schoolhouse.' }
+        { meal: 'Breakfast', id: 'ernies', note: 'Boxed breakfasts and trail sandwiches to-go on the drive in.' },
+        { meal: 'Lunch', id: 'oldFaithfulDining', note: 'The Inn dining room; Geyser Grill next door is the fast kid option.' },
+        { meal: 'Dinner', id: 'pondsLodge', note: 'Historic lodge dinner closest to the cabin.' }
       ],
-      fuelStops: [{ id: 'fuelCanyon', note: 'Mid-park fill at Canyon Village before the drive home.' }],
-      summary: 'Watch Hayden Valley wake, hear the earth churn at Mud Volcano and stand above Yellowstone’s most dramatic waterfall.',
-      highlight: 'Lower Falls framed by the color of the Grand Canyon of the Yellowstone.',
+      fuelStops: [{ id: 'fuelOldFaithful', note: 'In-park fill so tomorrow’s dawn run starts full.' }],
+      summary: 'One clean sweep south along the geyser corridor — canyon waterfall, paint pots, the rainbow of Grand Prismatic, then Old Faithful for lunch and afternoon eruptions.',
+      highlight: 'Grand Prismatic Spring glowing beneath the late-morning sun.',
       schedule: [
-        { time: 'Dawn', title: 'Hayden Valley wildlife', location: 'hayden', detail: 'Bring breakfast, layers and binoculars for bison, coyotes, bears and wolves.' },
-        { time: 'Morning', title: 'Mud Volcano', location: 'mudVolcano', detail: 'Walk the shorter loop among churning acidic features.' },
-        { time: 'Late morning', title: 'Fishing Bridge', location: 'fishingBridge', detail: 'Pause where Yellowstone Lake becomes the Yellowstone River.' },
-        { time: 'Afternoon', title: 'Artist Point and both rims', location: 'artistPoint', detail: 'Link the best viewpoints by car and choose the walks that suit the group.' }
+        { time: '7:15 AM', title: 'Firehole Canyon & Falls', location: 'fireholeFalls', detail: 'Take the one-way canyon drive first, while it’s cool and empty.' },
+        { time: '8:15 AM', title: 'Fountain Paint Pot', location: 'fountainPaintPot', detail: 'Walk among all four of Yellowstone’s hydrothermal feature types.' },
+        { time: '9:45 AM', title: 'Grand Prismatic overlook', location: 'grandPrismatic', detail: 'By late morning the steam has lifted and the color reads from above — and trailhead parking is still findable.' },
+        { time: '11:00 AM', title: 'Fairy Falls (optional)', location: 'fairyFalls', detail: 'Continue from the same trailhead to the 197-foot falls, or skip straight to Old Faithful.' },
+        { time: '12:30 PM', title: 'Old Faithful afternoon', location: 'oldFaithful', detail: 'Inn lunch, eruption predictions and the Upper Geyser Basin — afternoon brings the best geyser light.' }
       ]
     },
     {
       id: 'day-7', number: 7, date: '2026-08-17', label: 'Aug 17', weekday: 'Monday',
-      title: 'Yellowstone at its wildest', kicker: 'A restless landscape', hero: 'norris', color: '#82744d',
-      route: ['islandPark', 'norris', 'artistsPaintpots', 'gibbonFalls', 'islandPark'], fallbackMiles: 106, fallbackDrive: '2 hr 50 min',
+      title: 'Bison dawn, lake lines, canyon thunder', kicker: 'The elemental heart', hero: 'artistPoint', color: '#b65836',
+      route: ['islandPark', 'hayden', 'mudVolcano', 'fishingBridge', 'bridgeBay', 'artistPoint', 'canyon', 'islandPark'], fallbackMiles: 192, fallbackDrive: '5 hr 00 min',
       foodPlan: [
-        { meal: 'Breakfast', id: 'ernies', note: 'Grab lunch sandwiches at the same stop — Norris has no food service.' },
-        { meal: 'Lunch', id: 'norris', note: 'Picnic at the Norris area tables with the sandwiches from Ernie’s.', packed: true },
-        { meal: 'Dinner', id: 'pondsLodge', note: 'Historic lodge dinner closest to the cabin on the flexible evening.' }
+        { meal: 'Breakfast', id: 'hayden', note: 'Packed — nothing is open at 5 AM. Prep the cooler the night before.', packed: true },
+        { meal: 'Lunch', id: 'bridgeBay', note: 'Lakeside picnic at Bridge Bay while the anglers cast.', packed: true },
+        { meal: 'Dinner', id: 'madisonCrossing', note: 'The sit-down night in the old 1918 schoolhouse.' }
       ],
-      fuelStops: [{ id: 'fuelWestYellowstone', note: 'Cheapest pumps of the week — fill on the way back.' }],
-      summary: 'Walk Yellowstone’s hottest basin, visit the world’s tallest active geyser and keep the afternoon intentionally flexible.',
-      highlight: 'The otherworldly expanse of Porcelain Basin.',
+      fuelStops: [{ id: 'fuelCanyon', note: 'Mid-park fill at Canyon Village before the drive home.' }],
+      summary: 'Watch Hayden Valley wake, cast a line on Yellowstone Lake, and stand above the park’s most dramatic waterfall. Note: you drive past Canyon Junction at dawn — stops 5–6 wait for the afternoon, because wildlife owns the first hours.',
+      highlight: 'A cutthroat on the line with Yellowstone Lake stretching to the horizon.',
       schedule: [
-        { time: '7:30 AM', title: 'Norris Geyser Basin', location: 'norris', detail: 'Walk Porcelain Basin and part of Back Basin to Steamboat Geyser.' },
-        { time: 'Midday', title: 'Artists Paintpots', location: 'artistsPaintpots', detail: 'Climb the short loop to colorful, rhythmic mud pots.' },
-        { time: 'Afternoon', title: 'Gibbon Falls or rest', location: 'gibbonFalls', detail: 'Choose a quick waterfall stop, Mesa Falls, the wildlife center or a quiet afternoon.' }
+        { time: 'Dawn', title: 'Hayden Valley wildlife', location: 'hayden', detail: 'Bring breakfast, layers and binoculars for bison, coyotes, bears and wolves.' },
+        { time: 'Morning', title: 'Mud Volcano', location: 'mudVolcano', detail: 'Walk the shorter loop among churning acidic features.' },
+        { time: 'Late morning', title: 'Fishing Bridge overlook', location: 'fishingBridge', detail: 'Watch the lake become the river — note that casting from the bridge itself has been banned since 1973.' },
+        { time: 'Midday', title: 'Fish Yellowstone Lake', location: 'bridgeBay', detail: 'Shore-cast near Bridge Bay or take a guided marina charter (gear included). Park fishing permit required: $40/3-day, $55/7-day; kids 15 and under free with a permitted adult. Any lake trout caught must be kept; cutthroat released.' },
+        { time: 'Afternoon', title: 'Artist Point and both rims', location: 'artistPoint', detail: 'Link the best viewpoints by car and choose the walks that suit the group.' }
       ]
     },
     {
       id: 'day-8', number: 8, date: '2026-08-18', label: 'Aug 18', weekday: 'Tuesday',
-      title: 'Terraces to the northern gate', kicker: 'Travertine and history', hero: 'mammoth', color: '#a47b52',
-      route: ['islandPark', 'norris', 'mammoth', 'rooseveltArch', 'gardiner'], fallbackMiles: 112, fallbackDrive: '3 hr 15 min',
+      title: 'Steam, terraces, northern gate', kicker: 'The grand traverse', hero: 'mammoth', color: '#a47b52',
+      route: ['islandPark', 'gibbonFalls', 'artistsPaintpots', 'norris', 'mammoth', 'rooseveltArch', 'gardiner'], fallbackMiles: 118, fallbackDrive: '3 hr 30 min',
       foodPlan: [
-        { meal: 'Breakfast', id: 'islandPark', note: 'Cabin breakfast while packing out; coffee in West Yellowstone en route.', packed: true },
+        { meal: 'Breakfast', id: 'ernies', note: 'Check out, then grab boxed breakfasts and picnic sandwiches en route.' },
         { meal: 'Lunch', id: 'mammothGrill', note: 'Counter lunch steps from the terraces.' },
         { meal: 'Dinner', id: 'wonderland', note: 'Farm-to-table two blocks from your Gardiner lodging; explicitly veg/vegan friendly.' }
       ],
       fuelStops: [{ id: 'fuelGardiner', note: 'Critical: fill tonight — nothing is open before the 4:30 AM Lamar start.' }],
-      summary: 'Cross Yellowstone’s western plateau to Mammoth’s sculpted terraces, then settle beneath Roosevelt Arch.',
-      highlight: 'Palette Spring flowing over living travertine architecture.',
+      summary: 'The moving day earns its miles: Gibbon Falls, Artists Paintpots and Norris’s steaming basins on the way to Mammoth’s terraces and Roosevelt Arch.',
+      highlight: 'Steamboat Geyser’s steam and Palette Spring’s travertine in a single unhurried traverse.',
       schedule: [
-        { time: '7:30 AM', title: 'Leave Island Park', location: 'islandPark', detail: 'Pack a picnic and make the final drive through the west entrance.' },
-        { time: 'Late morning', title: 'Mammoth terraces', location: 'mammoth', detail: 'Walk Lower Terrace and Palette Spring; add Upper Terrace Drive if open.' },
+        { time: '7:00 AM', title: 'Leave Island Park', location: 'islandPark', detail: 'Pack out, load the van and enter through the west gate ahead of the crowds.' },
+        { time: '8:30 AM', title: 'Gibbon Falls', location: 'gibbonFalls', detail: 'A quick canyon-rim stop as the road climbs the caldera wall.' },
+        { time: '9:15 AM', title: 'Artists Paintpots', location: 'artistsPaintpots', detail: 'Climb the short loop to colorful, rhythmic mud pots.' },
+        { time: '10:30 AM', title: 'Norris Geyser Basin', location: 'norris', detail: 'Walk Porcelain Basin and part of Back Basin past Steamboat, the world’s tallest active geyser.' },
+        { time: '1:00 PM', title: 'Mammoth terraces', location: 'mammoth', detail: 'Lunch, then Lower Terrace and Palette Spring; add Upper Terrace Drive if open.' },
         { time: 'Afternoon', title: 'Gardiner check-in', location: 'gardiner', detail: 'Settle into the final two-night base and slow the pace.' },
         { time: 'Golden hour', title: 'Roosevelt Arch', location: 'rooseveltArch', detail: 'Photograph the historic northern gate in soft evening light.' }
       ]
@@ -2425,6 +2500,19 @@ window.TRIP_DATA = (() => {
         ]
       },
       {
+        category: 'Grocery run — "On The Run" list (Aug 14, West Yellowstone)', icon: '🛒',
+        items: [
+          { name: 'Water + juice', note: 'Cases of water for the van and juice boxes for the kids.' },
+          { name: 'Fruits + yogurt', note: 'Easy cooler breakfasts for the two pre-dawn wildlife mornings.' },
+          { name: 'Bread + Nutella + peanut butter + jelly', note: 'The sandwich station for pack-out lunches and the rest day.' },
+          { name: 'Snacks + desi snacks', note: 'Trail mix, bars and the from-home favorites that keep 5 kids happy.' },
+          { name: 'Wine', note: 'For cabin evenings — buy here; park-area selection is thin and pricey.' },
+          { name: 'Paper plates + cups', note: 'Cabin and picnic meals for 11 without dish duty.' },
+          { name: 'Spoons + knives', note: 'Disposable cutlery plus one real spreading knife for the PB&J station.' },
+          { name: 'Napkins + bathroom rolls', note: 'Extra paper goods — remote cabins and vault-toilet stops both run dry.' }
+        ]
+      },
+      {
         category: 'Navigation & documents', icon: '🗺️',
         items: [
           { name: 'Paper park maps', note: 'Free at entrance stations — grab them; cell service is absent across most of both parks.' },
@@ -2451,6 +2539,7 @@ window.TRIP_DATA = (() => {
       { title: 'Build an offline kit', copy: 'NPS maps, itinerary, lodging details and downloaded route screenshots.' },
       { title: 'Pack for four seasons', copy: 'Warm dawn layers, rain shell, sun protection, sturdy shoes and extra water.' },
       { title: 'Wildlife safety', copy: 'Buy or rent bear spray after landing and keep it immediately accessible.' },
+      { title: 'Yellowstone fishing permit', copy: 'Park-specific permit ($40/3-day) for the Aug 17 lake fishing; state licenses are not valid. Kids 15 and under fish free with a permitted adult.' },
       { title: 'Check conditions nightly', copy: 'Roadwork, smoke, storms and secondary-road closures can reshape the next day.' }
     ],
     locations,
@@ -2491,7 +2580,8 @@ window.TRIP_DATA = (() => {
     weatherTimer: null,
     toastTimer: null,
     showSupport: true,
-    offlinePrepRunning: false
+    offlinePrepRunning: false,
+    routeRetries: {}
   };
 
   /* ------------------------------------------------------------------ *
@@ -2797,7 +2887,15 @@ window.TRIP_DATA = (() => {
       $('#connection-dot').classList.toggle('offline', !online);
       $('#connection-label').textContent = online ? 'Live services' : 'Offline mode';
     };
-    window.addEventListener('online', () => { update(); showToast('Live services are available again.'); });
+    window.addEventListener('online', () => {
+      update();
+      showToast('Live services are available again.');
+      // Re-render the selected day so a straight-line preview upgrades itself.
+      if (state.selectedDay !== 'all') {
+        state.routeRetries = {};
+        selectDay(state.selectedDay);
+      }
+    });
     window.addEventListener('offline', () => { update(); showToast('Offline: cached images and route fallbacks remain available.'); });
     update();
   }
@@ -2903,18 +3001,22 @@ window.TRIP_DATA = (() => {
             </div>
           </div>`;
       }).join('');
-      const fuel = (day.fuelStops || []).map(stop => {
+      const supportRow = (stop, label, extraClass) => {
         const location = trip.locations[stop.id];
         if (!location) return '';
         return `
-          <div class="meal-row fuel-row">
-            <span class="meal-label">⛽ Fuel</span>
+          <div class="meal-row fuel-row ${extraClass}">
+            <span class="meal-label">${label}</span>
             <div>
               <strong><a href="${escapeHTML(location.link)}" target="_blank" rel="noopener">${escapeHTML(location.name)} ↗</a></strong>
               <span class="meal-note">${escapeHTML(stop.note || '')}</span>
             </div>
           </div>`;
-      }).join('');
+      };
+      const fuel = [
+        ...(day.shoppingStops || []).map(stop => supportRow(stop, '🛒 Grocery', 'shopping-row')),
+        ...(day.fuelStops || []).map(stop => supportRow(stop, '⛽ Fuel', ''))
+      ].join('');
       return `
         <article class="dining-card reveal" style="--day-color:${day.color}">
           <header>
@@ -3154,19 +3256,29 @@ window.TRIP_DATA = (() => {
     setMapStatus('Overview shown · select a day for live road geometry', 'success');
   }
 
+  /** djb2 — tiny stable hash for cache fingerprints. */
+  function hashString(text) {
+    let hash = 5381;
+    for (let i = 0; i < text.length; i++) hash = ((hash << 5) + hash + text.charCodeAt(i)) >>> 0;
+    return hash.toString(36);
+  }
+
   async function fetchRoadRoute(day) {
     const ids = uniqueConsecutive(day.route).filter(id => trip.locations[id]);
-    const cacheKey = day.id;
+    const coordinates = ids.map(id => {
+      const [lat, lng] = trip.locations[id].coords;
+      return `${lng},${lat}`;
+    }).join(';');
+    // The key fingerprints the actual waypoints. If the itinerary order or any
+    // coordinate changes, old cached geometry can never be served again —
+    // that mismatch is exactly what made stop numbers disagree with the line.
+    const cacheKey = `${day.id}:${hashString(coordinates)}`;
     if (routeMemory.has(cacheKey)) return routeMemory.get(cacheKey);
     const cached = safeStorageGet(`route:${cacheKey}`);
     if (cached && Date.now() - cached.savedAt < 6 * 60 * 60 * 1000) {
       routeMemory.set(cacheKey, cached.route);
       return cached.route;
     }
-    const coordinates = ids.map(id => {
-      const [lat, lng] = trip.locations[id].coords;
-      return `${lng},${lat}`;
-    }).join(';');
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
     try {
@@ -3234,7 +3346,7 @@ window.TRIP_DATA = (() => {
   }
 
   function supportIcon(location) {
-    const glyph = location.kind === 'fuel' ? '⛽' : '🍴';
+    const glyph = location.kind === 'fuel' ? '⛽' : location.kind === 'shopping' ? '🛒' : '🍴';
     return L.divIcon({
       className: 'custom-marker',
       html: `<div class="support-pin ${escapeHTML(location.kind)}"><span>${glyph}</span></div>`,
@@ -3244,20 +3356,39 @@ window.TRIP_DATA = (() => {
 
   /**
    * Support pins sit in a lower map pane so numbered route markers always
-   * render above them, and pins that share a village with a route stop are
-   * nudged ~400 m south-east so they never cover the stop number.
+   * render above them. Placement walks an expanding ring of offsets until a
+   * pin is clear of every stop marker AND every other support pin, so village
+   * clusters (Old Faithful, Canyon) never stack icons on top of each other.
    */
-  function declutteredCoords(location, routeCoords) {
-    const [lat, lng] = location.coords;
-    const collides = routeCoords.some(([rLat, rLng]) =>
-      Math.abs(rLat - lat) < 0.0045 && Math.abs(rLng - lng) < 0.0065);
-    return collides ? [lat - 0.0038, lng + 0.0058] : [lat, lng];
+  const SUPPORT_OFFSETS = [
+    [0, 0],
+    [-0.0038, 0.0058], [0.0038, 0.0058], [-0.0038, -0.0058], [0.0038, -0.0058],
+    [-0.0074, 0.0112], [0.0074, 0.0112], [-0.0074, -0.0112], [0.0074, -0.0112],
+    [0, 0.0135], [0, -0.0135], [-0.0095, 0], [0.0095, 0]
+  ];
+
+  function markersTooClose(a, b) {
+    return Math.abs(a[0] - b[0]) < 0.0045 && Math.abs(a[1] - b[1]) < 0.0065;
   }
 
-  function addSupportMarker(id, note = '', routeCoords = []) {
+  function placeClearOf(location, placed) {
+    const [lat, lng] = location.coords;
+    for (const [dLat, dLng] of SUPPORT_OFFSETS) {
+      const candidate = [lat + dLat, lng + dLng];
+      if (!placed.some(point => markersTooClose(candidate, point))) {
+        placed.push(candidate);
+        return candidate;
+      }
+    }
+    const fallback = [lat - 0.0038, lng + 0.0058];
+    placed.push(fallback);
+    return fallback;
+  }
+
+  function addSupportMarker(id, note = '', coords = null) {
     const location = trip.locations[id];
     if (!location) return;
-    const marker = L.marker(declutteredCoords(location, routeCoords), {
+    const marker = L.marker(coords || location.coords, {
       icon: supportIcon(location), keyboard: true, pane: 'supportPane'
     });
     const vegLine = location.veg ? `<span>${escapeHTML(location.veg)}</span>` : '';
@@ -3270,22 +3401,67 @@ window.TRIP_DATA = (() => {
     marker.addTo(state.markerLayer);
   }
 
+  /** Adds the day's dining/fuel/grocery pins; returns their final coordinates
+      so the map can include them when fitting bounds (no cropped pins). */
   function addDaySupportMarkers(day) {
-    if (!state.showSupport) return;
-    const routeCoords = uniqueConsecutive(day.route)
+    const placedCoords = [];
+    if (!state.showSupport) return placedCoords;
+    const placed = uniqueConsecutive(day.route)
       .map(id => trip.locations[id]?.coords)
-      .filter(Boolean);
+      .filter(Boolean)
+      .map(coords => [...coords]);
     const seen = new Set();
+    const supports = [];
     (day.foodPlan || []).forEach(stop => {
       const location = trip.locations[stop.id];
-      if (!location || location.kind !== 'dining' || seen.has(stop.id)) return;
-      seen.add(stop.id);
-      addSupportMarker(stop.id, `${stop.meal} today`, routeCoords);
+      if (location?.kind === 'dining' && !seen.has(stop.id)) {
+        seen.add(stop.id);
+        supports.push({ id: stop.id, note: `${stop.meal} today` });
+      }
     });
-    (day.fuelStops || []).forEach(stop => {
-      if (seen.has(stop.id)) return;
-      seen.add(stop.id);
-      addSupportMarker(stop.id, stop.note || '', routeCoords);
+    [...(day.fuelStops || []), ...(day.shoppingStops || [])].forEach(stop => {
+      if (!seen.has(stop.id) && trip.locations[stop.id]) {
+        seen.add(stop.id);
+        supports.push({ id: stop.id, note: stop.note || '' });
+      }
+    });
+    supports.forEach(support => {
+      const coords = placeClearOf(trip.locations[support.id], placed);
+      addSupportMarker(support.id, support.note, coords);
+      placedCoords.push(coords);
+    });
+    return placedCoords;
+  }
+
+  /**
+   * Direction arrows along the route line. Out-and-back days (geysers,
+   * Hayden/canyon) overlap themselves; arrows make outbound vs return
+   * readable and explain why stop numbers aren't in map order.
+   */
+  function addDirectionArrows(points, color) {
+    if (!state.map || !points || points.length < 2) return;
+    const cumulative = [0];
+    for (let i = 1; i < points.length; i++) {
+      cumulative.push(cumulative[i - 1] + state.map.distance(points[i - 1], points[i]));
+    }
+    const total = cumulative[cumulative.length - 1];
+    if (!total) return;
+    [0.05, 0.15, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 0.85, 0.95].forEach(fraction => {
+      const target = total * fraction;
+      let index = cumulative.findIndex(distance => distance >= target);
+      if (index <= 0) index = 1;
+      const from = points[index - 1];
+      const to = points[Math.min(index, points.length - 1)];
+      const dLat = to[0] - from[0];
+      const dLng = (to[1] - from[1]) * Math.cos(from[0] * Math.PI / 180);
+      if (!dLat && !dLng) return;
+      const angle = Math.round(Math.atan2(dLng, dLat) * 180 / Math.PI) - 90;
+      const icon = L.divIcon({
+        className: 'custom-marker',
+        html: `<span class="route-arrow" style="--arrow-color:${color};transform:rotate(${angle}deg)">➤</span>`,
+        iconSize: [18, 18], iconAnchor: [9, 9]
+      });
+      L.marker(from, { icon, interactive: false, keyboard: false, pane: 'supportPane' }).addTo(state.routeLayer);
     });
   }
 
@@ -3295,16 +3471,21 @@ window.TRIP_DATA = (() => {
     const ids = uniqueConsecutive(day.route);
     buildMarkerPlan(day.route).forEach(entry =>
       addLocationMarker(entry.id, entry.label ?? '', { isBase: entry.isBase, popupNote: entry.popupNote }));
-    addDaySupportMarkers(day);
+    const supportCoords = addDaySupportMarkers(day);
     const fallback = ids.map(id => trip.locations[id]?.coords).filter(Boolean);
     L.polyline(fallback, { color: '#ffffff', weight: 7, opacity: .8 }).addTo(state.routeLayer);
     const fallbackLine = L.polyline(fallback, { color: day.color, weight: 4, opacity: .9, dashArray: '8 8' }).addTo(state.routeLayer);
+    addDirectionArrows(fallback, day.color);
     const bounds = mapBoundsFor(ids);
-    if (bounds) state.map.fitBounds(bounds, { padding: [42, 42] });
+    if (bounds) {
+      supportCoords.forEach(point => bounds.extend(point));
+      state.map.fitBounds(bounds, { padding: [42, 42] });
+    }
 
     updateStory({
       kicker: `Day ${day.number} · ${day.weekday}, ${day.label}`, title: day.title, copy: day.summary,
-      distance: `~${day.fallbackMiles} mi`, duration: day.fallbackDrive, stops: `${new Set(ids).size} mapped`, photoLocation: day.hero
+      distance: `~${day.fallbackMiles} mi`, duration: day.fallbackDrive, stops: `${new Set(ids).size} mapped`, photoLocation: day.hero,
+      sequence: sequenceHTML(day.route)
     });
     setMapStatus('Requesting current road geometry…', 'loading');
 
@@ -3314,13 +3495,28 @@ window.TRIP_DATA = (() => {
       state.routeLayer.clearLayers();
       L.polyline(route.points, { color: '#ffffff', weight: 8, opacity: .8 }).addTo(state.routeLayer);
       const roadLine = L.polyline(route.points, { color: day.color, weight: 5, opacity: .95 }).addTo(state.routeLayer);
-      state.map.fitBounds(roadLine.getBounds(), { padding: [42, 42] });
+      addDirectionArrows(route.points, day.color);
+      const liveBounds = roadLine.getBounds();
+      supportCoords.forEach(point => liveBounds.extend(point));
+      state.map.fitBounds(liveBounds, { padding: [42, 42] });
       $('#route-distance').textContent = `${Math.round(route.miles)} mi`;
       $('#route-duration').textContent = formatDuration(route.seconds);
+      state.routeRetries[day.id] = 0;
       setMapStatus('Live road geometry loaded', 'success');
     } catch {
-      fallbackLine.setStyle({ dashArray: '8 8' });
-      setMapStatus('Using itinerary fallback · live routing unavailable', 'warning');
+      // Make it impossible to mistake the schematic for a road: gray it out,
+      // say so, and retry automatically while this day stays selected.
+      fallbackLine.setStyle({ color: '#98a09c', dashArray: '4 9', weight: 3 });
+      setMapStatus('Straight-line preview only — retrying live road route…', 'warning');
+      const attempts = state.routeRetries[day.id] || 0;
+      if (attempts < 2) {
+        state.routeRetries[day.id] = attempts + 1;
+        setTimeout(() => {
+          if (state.selectedDay === day.id) renderDayRoute(day);
+        }, 8000);
+      } else {
+        setMapStatus('Straight-line preview — live routing unavailable right now', 'warning');
+      }
     }
   }
 
@@ -3349,10 +3545,26 @@ window.TRIP_DATA = (() => {
     }
   }
 
-  function updateStory({ kicker, title, copy, distance, duration, stops, photoLocation }) {
+  /** Compact "⌂ → 1 Name → 2 Name…" strip tying marker numbers to the line. */
+  function sequenceHTML(routeIds) {
+    return buildMarkerPlan(routeIds).map(entry => {
+      const location = trip.locations[entry.id];
+      const chip = entry.isBase ? '⌂' : entry.label;
+      return `<span><b>${escapeHTML(String(chip))}</b> ${escapeHTML(location.name)}</span>`;
+    }).join('<i>→</i>') + (routeIds[routeIds.length - 1] === routeIds[0] ? '<i>→</i><span><b>⌂</b> back</span>' : '');
+  }
+
+  function updateStory({ kicker, title, copy, distance, duration, stops, photoLocation, sequence }) {
     $('#map-story-kicker').textContent = kicker;
     $('#map-story-title').textContent = title;
     $('#map-story-copy').textContent = copy;
+    const sequenceTarget = $('#route-sequence');
+    if (sequence) {
+      sequenceTarget.innerHTML = sequence;
+      sequenceTarget.hidden = false;
+    } else {
+      sequenceTarget.hidden = true;
+    }
     $('#route-distance').textContent = distance;
     $('#route-duration').textContent = duration;
     $('#route-stops').textContent = stops;
@@ -3660,6 +3872,18 @@ window.TRIP_DATA = (() => {
     }
   }
 
+  /** Remove route entries saved under the old un-fingerprinted key format. */
+  function purgeLegacyRouteCache() {
+    try {
+      const stale = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && /^wild-north-[^:]*:route:day-\d+$/.test(key)) stale.push(key);
+      }
+      stale.forEach(key => localStorage.removeItem(key));
+    } catch { /* storage unavailable */ }
+  }
+
   async function purgeLegacyTiles() {
     // One-time cleanup: drop tiles cached from the old openstreetmap.org keys.
     try {
@@ -3679,6 +3903,7 @@ window.TRIP_DATA = (() => {
     const button = $('#offline-button');
     if (safeStorageGet('offline:prepared:v2')) button.textContent = 'Offline ✓';
     button.addEventListener('click', prepareOffline);
+    purgeLegacyRouteCache();
     purgeLegacyTiles();
     // App-shell service worker (progressive enhancement — requires http(s)/localhost;
     // silently skipped when the page is opened from file://).
